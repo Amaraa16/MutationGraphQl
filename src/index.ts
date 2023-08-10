@@ -11,7 +11,7 @@ const typeDefs = `#graphql
 
   type Query {
     getPosts: [Post],
-    getPostDetail: Post
+    getPostDetail(code: String): Post
   }
 
   input PostInput {
@@ -28,7 +28,8 @@ const typeDefs = `#graphql
 const resolvers = {
   Query: {
     getPosts: () => {
-      return null;
+      const Get = db("find", {});
+      return Get
     },
     getPostDetail: () => {
       return null;
@@ -43,11 +44,23 @@ const resolvers = {
       });
       return Created;
     },
-    updatePost: () => {
-      return null;
+    updatePost: (_, args) => {
+      const updated = db("updateOne", {
+        filter: { _id: { $oid: args.id } },
+        update: {
+          $set: {
+            text: args.PostUpdateInput.text,
+          },
+        },
+      });
+      return updated
     },
-    deletePost: () => {
-      return null;
+    deletePost: (_, args) => {
+      const deleted = db("deleteOne", {
+        filter: { _id: { $oid: args.id } },
+      });
+
+      return deleted
     },
   },
 };
@@ -62,4 +75,4 @@ const { url } = await startStandaloneServer(server, {
   listen: { port: 4000 },
 });
 
-console.log(`🚀  Server ready at: ${url}`);
+console.log(`🚀 Server ready at: ${url}`);
